@@ -45,10 +45,10 @@ class SecurityController extends AbstractController
             $user->setPassword($hasher);
             $em->persist($user);
             $em->flush();
-            $this->addFlash("success", "Bienvenu sur Wonder !");
+            $this->addFlash("success", "Bienvenu sur QUORA !");
             $email = new TemplatedEmail();
             $email->to($user->getEmail())
-                ->subject("Bienvenu sur Wonder")
+                ->subject("Bienvenu sur QUORA")
                 ->htmlTemplate('@email_templates/welcome.html.twig')
                 ->context([
                     'username' => $user->getFirstname()
