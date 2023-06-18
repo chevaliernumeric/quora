@@ -31,7 +31,7 @@ class SecurityController extends AbstractController
     {
     }
     #[Route('/signup', name: 'signup')]
-    public function signup(Uploader $uploader,MailerInterface $mailer, UserAuthenticatorInterface $authenticator, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
+    public function signup(Uploader $uploader, MailerInterface $mailer, UserAuthenticatorInterface $authenticator, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $userForm = $this->createForm(UserType::class, $user);
@@ -40,7 +40,7 @@ class SecurityController extends AbstractController
         if ($userForm->isSubmitted() && $userForm->isValid()) {
             $picture = $userForm->get('pictureFile')->getData();
             $user->setPicture($uploader->getProfileImage($picture));
-           
+
             $hasher = $passwordHasher->hashPassword($user, $user->getPassword());
             $user->setPassword($hasher);
             $em->persist($user);
@@ -82,34 +82,34 @@ class SecurityController extends AbstractController
     {
     }
     #[Route('/reset_password/{token}', name: 'reset_password')]
-    public function resetPassword(UserPasswordHasherInterface $passwordHasher,Request $request,EntityManagerInterface $em,string $token,ResetPasswordRepository $resetPasswordRepo)
+    public function resetPassword(UserPasswordHasherInterface $passwordHasher, Request $request, EntityManagerInterface $em, string $token, ResetPasswordRepository $resetPasswordRepo)
     {
-        $resetPassword = $resetPasswordRepo->findOneBy(['token'=>$token]);
-        if(!$resetPassword || $resetPassword->getExpiredAt() < new \DateTime('now')){
-            if($resetPassword){
+        $resetPassword = $resetPasswordRepo->findOneBy(['token' => $token]);
+        if (!$resetPassword || $resetPassword->getExpiredAt() < new \DateTime('now')) {
+            if ($resetPassword) {
                 $em->remove($resetPassword);
                 $em->flush();
             }
             $this->addFlash('error', 'Votre demande est expirée veuillez refaire une demande.');
             return $this->redirectToRoute('login');
         }
-        $passwordForm = $this->createFormBuilder()->add('password',PasswordType::class,[
-            'label'=>'Nouveau mot de passe',
-            'constraints'=>[
+        $passwordForm = $this->createFormBuilder()->add('password', PasswordType::class, [
+            'label' => 'Nouveau mot de passe',
+            'constraints' => [
                 new Length([
                     'min' => 6,
                     'minMessage' => 'Le mot de passe doit faire au moins 6 caractères.'
-                  ]),
-                  new NotBlank([
+                ]),
+                new NotBlank([
                     'message' => 'Veuillez renseigner un mot de passe.'
-                  ])
+                ])
             ]
         ])->getForm();
         $passwordForm->handleRequest($request);
-        if($passwordForm->isSubmitted() && $passwordForm->isValid()){
+        if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
             $password = $passwordForm->get('password')->getData();
             $user = $resetPassword->getUser();
-            $hash= $passwordHasher->hashPassword($user,$password);
+            $hash = $passwordHasher->hashPassword($user, $password);
             $user->setPassword($hash);
             $em->flush();
             $this->addFlash('success', 'Votre mot de passe a été modifié.');
@@ -117,11 +117,11 @@ class SecurityController extends AbstractController
         }
         return $this->render('security/reset_password_form.html.twig', [
             'form' => $passwordForm->createView()
-          ]);
+        ]);
     }
     #[Route('/reset_password_request', name: 'reset_password_request')]
 
-    public function resetPasswordRequest(MailerInterface $mailer,EntityManagerInterface $em,Request $request, UserRepository $userRep, ResetPasswordRepository $resetPasswordRepo)
+    public function resetPasswordRequest(MailerInterface $mailer, EntityManagerInterface $em, Request $request, UserRepository $userRep, ResetPasswordRepository $resetPasswordRepo)
     {
         $emailForm = $this->createFormBuilder()->add('email', EmailType::class, [
             'constraints' => [
@@ -136,10 +136,9 @@ class SecurityController extends AbstractController
             $user = $userRep->findOneBy(["email" => $emailValue]);
             if ($user) {
                 $oldPassword = $resetPasswordRepo->findOneBy(["user" => $user]);
-                if($oldPassword){
+                if ($oldPassword) {
                     $em->remove($oldPassword);
                     $em->flush();
-
                 }
                 $resetPassword = new ResetPassword();
                 $resetPassword->setUser($user);
@@ -150,16 +149,15 @@ class SecurityController extends AbstractController
                 $em->flush();
                 $email = new TemplatedEmail();
                 $email->to($emailValue)
-                        ->subject('Demande de réinitialisation de mot de passe')
-                        ->htmlTemplate('@email_templates/reset_password_request.html.twig')
-                        ->context([
-                            'token'=>$token
-                        ]);
-                        $mailer->send($email);
+                    ->subject('Demande de réinitialisation de mot de passe')
+                    ->htmlTemplate('@email_templates/reset_password_request.html.twig')
+                    ->context([
+                        'token' => $token
+                    ]);
+                $mailer->send($email);
             }
-            $this->addFlash('success', 'Un email vous a été envoyé pour réinitialiser votre mot de passe');
+            $this->addFlash('success', 'Veuillez verifié votre adress email');
             return $this->redirectToRoute('home');
-
         }
         return $this->render('security/reset_password_request.html.twig', [
             'form' => $emailForm->createView()
