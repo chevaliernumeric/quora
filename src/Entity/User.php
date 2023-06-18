@@ -31,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Assert\NotBlank(message: 'Veuillez renseigné ce champs')]
+    #[Assert\NotBlank(message: 'Veuillez renseigné ce champs,il est obligatoire')]
     #[Assert\Length(min: 6, minMessage: 'Le mot de passe doit faire 6 cractéters')]
     #[ORM\Column]
     private ?string $password = null;
