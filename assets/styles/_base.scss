@@ -1,0 +1,63 @@
+@use 'mixin' as *;
+
+.app-content {
+  background-color: var(--gray-light);
+  padding: 20px;
+  @include xs {
+    padding: 10px;
+  }
+}
+
+.content {
+  max-width: var(--max-width);
+  &-main {
+    padding: 50px 0;
+    @include xs {
+      padding: 0 0 50px 0;
+    }
+  }
+}
+
+  .separator {
+    border-bottom: 1px solid var(--gray-light);
+    margin: 30px 0px;
+  }
+  .active {
+    border-left: 5px solid var(--primary);
+    background-color: var(--primary-light);
+  }
+  .block{
+    padding: 20px;
+    border-radius: var(--border-radius);
+    background-color: white;
+    box-shadow: var(--box-shadow);
+  }
+  .avatar {
+    width: 25px;
+    border-radius: 50%;
+  }
+  .avatar-lg {
+    width: 40px;
+  }
+  .profile-picture {
+    width: 150px;
+    border-radius: var(--border-radius);
+  }
+  .clickable {
+    color:var(--primary);
+    font-weight: var(--font-weight-semi-bold);
+    cursor: pointer;
+  }
+  
+  .text-small {
+    font-size: var(--font-size-small);
+  }
+  .block-shadow:hover {
+    cursor: pointer;
+    box-shadow: none;
+    transition: box-shadow 0.4s;
+  }
+  small {
+    font-size: var(--font-size-small);
+    font-family: var(--font-family);
+  }    
